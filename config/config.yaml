@@ -1,0 +1,12 @@
+telegram_bot:
+  token: ""
+
+restaurant:
+  materik:
+    site_url: "http://materik.by/"
+  vangog:
+    instagram:
+      url: "https://www.instagram.com/vangoghmogilev/"
+      posts_xpath: '//*[@id="react-root"]/section/main/div/div[3]/article/div/div/div/div/a'
+
+database: "./config/lunch.db"

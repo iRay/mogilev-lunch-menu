@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "mogilev-lunch-menu"
+version = "0.1.0"
+description = "Lunch menu in Mogilev"
+authors = ["Alexander Kovalev <ray.kovalev@yandex.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+beautifulsoup4 = "^4.7"
+schedule = "^0.6.0"
+selenium = "^3.141"
+pillow = "^5.4"
+pyyaml = "^3.13"
+python-telegram-bot = "12.0.0b1"
+requests = "^2.21"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
