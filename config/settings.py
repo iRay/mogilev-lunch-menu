@@ -8,4 +8,4 @@ with open(default_file, "r") as file:
 
 telegram_bot = config.get("telegram_bot")
 restaurant = config.get("restaurant")
-db = config.get("database")
+database = config.get("database")

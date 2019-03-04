@@ -1,32 +1,44 @@
 import sqlite3
-from config import db
 
-conn = sqlite3.connect(db)
+conn = sqlite3.connect("config/lunch.db")
 cursor = conn.cursor()
 
 create_users = """
 CREATE TABLE IF NOT EXISTS users (
- id integer PRIMARY KEY,
- chat_id integer NOT NULL,
- user_name text NOT NULL,
- first_name text NOT NULL,
- last_name text NOT NULL,
- request_text text DEFAULT '',
- request_date text NOT NULL
+ id INTEGER PRIMARY KEY,
+ chat_id INTEGER NOT NULL,
+ user_name VARCHAR(32) DEFAULT NULL,
+ first_name VARCHAR(32) DEFAULT NULL,
+ last_name VARCHAR(32) DEFAULT NULL,
+ request_text TEXT DEFAULT '',
+ created_at TEXT NOT NULL,
+ updated_at TEXT NOT NULL
+);
+"""
+
+create_restaurants = """
+CREATE TABLE IF NOT EXISTS restaurants (
+ id INTEGER PRIMARY KEY,
+ name VARCHAR(64) DEFAULT NULL,
+ created_at TEXT NOT NULL,
+ updated_at TEXT NOT NULL
 );
 """
 
 create_notifications = """
 CREATE TABLE IF NOT EXISTS notifications (
- id integer PRIMARY KEY,
- chat_id integer NOT NULL UNIQUE,
- status integer DEFAULT 0,
+ id INTEGER PRIMARY KEY,
+ chat_id INTEGER NOT NULL UNIQUE,
+ restaurant_id INTEGER NOT NULL,
+ status INTEGER DEFAULT 0,
  notify_at text DEFAULT '',
- updated_at text NOT NULL
+ created_at TEXT NOT NULL,
+ updated_at TEXT NOT NULL
 );
 """
 
 cursor.execute(create_users)
+cursor.execute(create_restaurants)
 cursor.execute(create_notifications)
 conn.commit()
 

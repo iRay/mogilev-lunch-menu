@@ -62,7 +62,8 @@ class Vangog:
                 post_url = post.get_attribute("href")
                 page_src = requests.get(post_url).text
                 menu = re.findall(r".+(обеденное\s+меню).+", page_src)
-                if len(menu):
+                tags = re.findall(restaurant["vangog"]["instagram"]["tags_regexp"], page_src)
+                if menu or tags:
                     img = post.find_element_by_css_selector("img")
                     img_url = img.get_attribute("src")
                     driver.quit()

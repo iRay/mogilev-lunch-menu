@@ -15,10 +15,12 @@ from util import (
     STATE,
     start,
     cancel,
-    msg
+    msg,
+    log_request
 )
 
 
+@log_request
 def restaurant(update: Update, context: CallbackContext):
     selected_restaurant = update.message.text.strip().lower()
     if selected_restaurant == "материк":

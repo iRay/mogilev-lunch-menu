@@ -1,5 +1,7 @@
 from functools import wraps
 from telegram import ChatAction
+from .db import save_req_info
+from util.models import User
 
 
 def send_action(action):
@@ -21,3 +23,18 @@ def send_action(action):
 
 send_typing_action = send_action(ChatAction.TYPING)
 send_upload_photo_action = send_action(ChatAction.UPLOAD_PHOTO)
+
+
+def log_request(handler):
+    """ Log request to DB """
+    def wrapper(*args, **kwargs):
+        msg = args[0]["message"].to_dict()
+        user = User()
+        user.id = msg["from"].get("id", "n/a")
+        user.username = msg["from"].get("username", "n/a")
+        user.first_name = msg["from"].get("first_name", "n/a")
+        user.last_name = msg["from"].get("last_name", "n/a")
+        user.text = msg["text"]
+        save_req_info(user)
+        return handler(*args, **kwargs)
+    return wrapper

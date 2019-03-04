@@ -8,5 +8,6 @@ restaurant:
     instagram:
       url: "https://www.instagram.com/vangoghmogilev/"
       posts_xpath: '//*[@id="react-root"]/section/main/div/div[3]/article/div/div/div/div/a'
+      tags_regexp: 'property="instapp:hashtags"\s+content="(бизнесланч|обед)"\s*/?>'
 
 database: "./config/lunch.db"
