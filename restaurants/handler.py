@@ -13,10 +13,10 @@ from .vangog import Vangog
 from util import (
     kb_materik_menu_select,
     STATE,
-    start,
     cancel,
     msg,
-    log_request
+    log_request,
+    reply_keyboard_restaurants,
 )
 
 
@@ -33,12 +33,18 @@ def restaurant(update: Update, context: CallbackContext):
         return STATE["MATERIK"]
 
     if selected_restaurant == "вангог":
-        update.message.reply_text(msg["wait_a_moment"])
+        update.message.reply_text(
+            msg["wait_a_moment"],
+            reply_markup=ReplyKeyboardMarkup(
+                reply_keyboard_restaurants, resize_keyboard=True
+            ),
+        )
         Vangog.menu(update, context)
+        return STATE["RESTAURANT"]
 
 
 conv_handler = ConversationHandler(
-    entry_points=[MessageHandler(Filters.command, start)],
+    entry_points=[MessageHandler(Filters.regex("^(материк|вангог)$"), restaurant)],
     states={
         STATE["RESTAURANT"]: [
             MessageHandler(Filters.regex("^(материк|вангог)$"), restaurant)
@@ -49,7 +55,7 @@ conv_handler = ConversationHandler(
                 Materik.menu,
             )
         ],
-        STATE["VANGOG"]: [MessageHandler(Filters.text, Vangog.menu)],
+        STATE["VANGOG"]: [MessageHandler(Filters.regex("^(вангог)$"), Vangog.menu)],
     },
     fallbacks=[CommandHandler("cancel", cancel)],
 )

@@ -5,7 +5,7 @@ from selenium import webdriver
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import CallbackContext
 
-from util import STATE, reply_keyboard_restaurants, msg
+from util import reply_keyboard_restaurants, msg
 from config import restaurant
 
 
@@ -28,8 +28,6 @@ class Vangog:
                     reply_keyboard_restaurants, resize_keyboard=True
                 ),
             )
-
-        return STATE["RESTAURANT"]
 
     @staticmethod
     def init_driver():
@@ -62,7 +60,9 @@ class Vangog:
                 post_url = post.get_attribute("href")
                 page_src = requests.get(post_url).text
                 menu = re.findall(r".+(обеденное\s+меню).+", page_src)
-                tags = re.findall(restaurant["vangog"]["instagram"]["tags_regexp"], page_src)
+                tags = re.findall(
+                    restaurant["vangog"]["instagram"]["tags_regexp"], page_src
+                )
                 if menu or tags:
                     img = post.find_element_by_css_selector("img")
                     img_url = img.get_attribute("src")

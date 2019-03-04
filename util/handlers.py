@@ -7,11 +7,22 @@ import logging
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
+logging.getLogger("urllib3").setLevel(logging.ERROR)
 logger = logging.getLogger(__name__)
 
 
 @log_request
 def start(update: Update, context: CallbackContext):
+    update.message.reply_text(
+        "Выберите ресторан",
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard_restaurants, resize_keyboard=True, one_time_keyboard=True
+        ),
+    )
+
+
+@log_request
+def start_conversation(update: Update, context: CallbackContext):
     update.message.reply_text(
         "Выберите ресторан",
         reply_markup=ReplyKeyboardMarkup(

@@ -27,6 +27,7 @@ send_upload_photo_action = send_action(ChatAction.UPLOAD_PHOTO)
 
 def log_request(handler):
     """ Log request to DB """
+
     def wrapper(*args, **kwargs):
         msg = args[0]["message"].to_dict()
         user = User()
@@ -37,4 +38,5 @@ def log_request(handler):
         user.text = msg["text"]
         save_req_info(user)
         return handler(*args, **kwargs)
+
     return wrapper
