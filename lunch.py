@@ -9,7 +9,7 @@ from telegram.ext import (
 
 from config import telegram_bot
 from util import error_callback, unknown, start
-from restaurants import conv_handler
+from restaurants import conv_handler, notification_conversation
 
 
 def main():
@@ -19,7 +19,9 @@ def main():
     start_handler = CommandHandler("start", start)
     dispatcher.add_handler(start_handler)
 
+    dispatcher.add_handler(notification_conversation)
     dispatcher.add_handler(conv_handler)
+
     dispatcher.add_error_handler(error_callback)
 
     unknown_handler = MessageHandler(Filters.command, unknown)

@@ -32,6 +32,7 @@ def start_conversation(update: Update, context: CallbackContext):
     return STATE["RESTAURANT"]
 
 
+@log_request
 def cancel(update: Update, context: CallbackContext):
     update.message.reply_text(
         "Выберите ресторан",

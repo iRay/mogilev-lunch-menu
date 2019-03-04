@@ -1,4 +1,4 @@
-STATE = {"RESTAURANT": 0, "MATERIK": 1, "VANGOG": 2}
+STATE = {"RESTAURANT": 0, "MATERIK": 1, "VANGOG": 2, "NOTIFICATIONS": 3, "NOTIFY_MATERIK": 4, "NOTIFY_VANGOG": 5}
 
 ru_month = {
     1: "января",
