@@ -38,7 +38,7 @@ def restaurant(update: Update, context: CallbackContext):
 
 
 conv_handler = ConversationHandler(
-    entry_points=[MessageHandler(Filters.text, start)],
+    entry_points=[MessageHandler(Filters.command, start)],
     states={
         STATE["RESTAURANT"]: [
             MessageHandler(Filters.regex("^(материк|вангог)$"), restaurant)
