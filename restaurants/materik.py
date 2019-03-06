@@ -26,7 +26,7 @@ class Materik:
 
         response_menu_page = requests.get(new_menu_url[0])
 
-        pattern = re.compile("(\d{1,2}\.\d{1,2})")
+        pattern = re.compile(r"(\d{1,2}\.\d{1,2})")
 
         soup_menu_page = BeautifulSoup(response_menu_page.text, features="html.parser")
         content = soup_menu_page.find_all(
@@ -116,6 +116,6 @@ class Materik:
 
         items = re.split(r"\.\n", menu)
         for idx, item in enumerate(items):
-            options[str(idx)] = re.sub('\s+', " ", item.strip())
+            options[str(idx)] = re.sub(r"\s+", " ", item.strip())
 
         return menu_for, options
