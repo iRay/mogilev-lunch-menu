@@ -79,7 +79,7 @@ class Materik:
             options[query.data] = f"✅ {options[query.data]}"
             context.user_data["menu_price"] += item_price
 
-        price = "{0:.2f}".format(context.user_data["menu_price"])
+        price = "{0:.2f}".format(abs(context.user_data["menu_price"]))
 
         buttons = [
             [InlineKeyboardButton(v, callback_data=k)] for k, v in options.items()
@@ -116,6 +116,6 @@ class Materik:
 
         items = re.split(r"\.\n", menu)
         for idx, item in enumerate(items):
-            options[str(idx)] = item.strip()
+            options[str(idx)] = re.sub('\s+', " ", item.strip())
 
         return menu_for, options

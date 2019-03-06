@@ -29,14 +29,15 @@ def log_request(handler):
     """ Log request to DB """
 
     def wrapper(*args, **kwargs):
-        msg = args[0]["message"].to_dict()
-        user = User()
-        user.id = msg["from"].get("id", "n/a")
-        user.username = msg["from"].get("username", "n/a")
-        user.first_name = msg["from"].get("first_name", "n/a")
-        user.last_name = msg["from"].get("last_name", "n/a")
-        user.text = msg["text"]
-        save_req_info(user)
+        if hasattr(args[0]["message"], "to_dict"):
+            msg = args[0]["message"].to_dict()
+            user = User()
+            user.id = msg["from"].get("id", "n/a")
+            user.username = msg["from"].get("username", "n/a")
+            user.first_name = msg["from"].get("first_name", "n/a")
+            user.last_name = msg["from"].get("last_name", "n/a")
+            user.text = msg["text"]
+            save_req_info(user)
         return handler(*args, **kwargs)
 
     return wrapper

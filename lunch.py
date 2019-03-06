@@ -20,6 +20,8 @@ def main():
     start_handler = CommandHandler("start", start)
     dispatcher.add_handler(start_handler)
 
+    dispatcher.add_handler(notification_conversation)
+
     materik_handler = MessageHandler(Filters.regex("^(материк)$"), menu_materik)
     vangog_handler = MessageHandler(Filters.regex("^(вангог)$"), menu_vangog)
     dispatcher.add_handler(materik_handler)
@@ -27,7 +29,6 @@ def main():
     dispatcher.add_handler(
         CallbackQueryHandler(Materik.menu_handler, pass_user_data=True)
     )
-    dispatcher.add_handler(notification_conversation)
 
     dispatcher.add_error_handler(error_callback)
 

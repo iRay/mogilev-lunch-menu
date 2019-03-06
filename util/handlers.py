@@ -45,6 +45,8 @@ def cancel(update: Update, context: CallbackContext):
 
 @log_request
 def error_callback(update, context):
+    if context.error.message == "Message is not modified":
+        return
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 
