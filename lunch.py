@@ -10,7 +10,7 @@ from telegram.ext import (
 
 from config import telegram_bot
 from util import error_callback, unknown, start
-from restaurants import conv_handler, notification_conversation, Materik
+from restaurants import notification_conversation, Materik, menu_materik, menu_vangog
 
 
 def main():
@@ -19,16 +19,15 @@ def main():
 
     start_handler = CommandHandler("start", start)
     dispatcher.add_handler(start_handler)
-    # ==============================
-    test_handler = CommandHandler("test", Materik.test_menu, pass_user_data=True)
-    dispatcher.add_handler(test_handler)
+
+    materik_handler = MessageHandler(Filters.regex("^(материк)$"), menu_materik)
+    vangog_handler = MessageHandler(Filters.regex("^(вангог)$"), menu_vangog)
+    dispatcher.add_handler(materik_handler)
+    dispatcher.add_handler(vangog_handler)
     dispatcher.add_handler(
         CallbackQueryHandler(Materik.menu_handler, pass_user_data=True)
     )
-    # ==============================
-
     dispatcher.add_handler(notification_conversation)
-    dispatcher.add_handler(conv_handler)
 
     dispatcher.add_error_handler(error_callback)
 

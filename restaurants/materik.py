@@ -1,60 +1,19 @@
 import re
-from typing import Optional, List, Dict
+from typing import List, Dict, Tuple
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
-from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 
-from util import STATE, reply_keyboard_restaurants, ru_month, msg
+from util import ru_month, msg
 from config import restaurant
 
 
 class Materik:
     @classmethod
-    def menu(cls, update: Update, context: CallbackContext):
-        menu_for = update.message.text.strip().lower()
-        if menu_for.startswith("меню на сегодня"):
-            day, month, menu = cls.fetch_menu("today")
-            if day is None or month is None:
-                update.message.reply_text(
-                    menu,
-                    reply_markup=ReplyKeyboardMarkup(
-                        reply_keyboard_restaurants, resize_keyboard=True
-                    ),
-                )
-            else:
-                today = f"{int(day)}е {ru_month[int(month)]}"
-                update.message.reply_text(
-                    f"меню ♨ на *{today}* \n" f"{menu}",
-                    reply_markup=ReplyKeyboardMarkup(
-                        reply_keyboard_restaurants, resize_keyboard=True
-                    ),
-                )
-        if menu_for.startswith("меню на неделю"):
-            menu = cls.fetch_menu("week")
-            update.message.reply_text(
-                f"меню ♨ на *неделю* \n" f"{menu}",
-                reply_markup=ReplyKeyboardMarkup(
-                    reply_keyboard_restaurants, resize_keyboard=True
-                ),
-            )
-
-        return STATE["RESTAURANT"]
-
-    @classmethod
-    def get_date(cls, day=None) -> Optional[str]:
-        if day is not None:
-            requested_day = day.strip().lower()
-            if requested_day == "today":
-                return str(datetime.now().day) + "." + str(datetime.now().month)
-            if requested_day == "week":
-                return "week"
-        return None
-
-    @classmethod
-    def fetch_menu(cls, day=None):
+    def fetch_menu(cls):
         response_index = requests.get(restaurant["materik"]["site_url"])
         soup_index = BeautifulSoup(response_index.text, features="html.parser")
 
@@ -86,29 +45,20 @@ class Materik:
                     group = []
 
         week_days = dict(get_days(elements))
-        menu_for = cls.get_date(day)
-        if menu_for is None:
-            return None, None, msg["sorry_no_menu"]
-        elif menu_for == "week":
-            return "".join(
-                f"меню ♨ на *{key}*{val} \n" for key, val in week_days.items()
-            )
+        menu_for = str(datetime.now().day) + "." + str(datetime.now().month)
 
-        lead_zero_day, lead_zero_month = menu_for.split(".")
+        curr_day = datetime.now().day
+        curr_month = datetime.now().month
         day = set(week_days.keys()) & {
             menu_for,
             f"0{menu_for}",
-            f"0{lead_zero_day}.{lead_zero_month}",
-            f"{lead_zero_day}.0{lead_zero_month}",
+            f"0{curr_day}.{curr_month}",
+            f"{curr_day}.0{curr_month}",
         }
-        menu = None
-        if len(day):
-            menu = week_days.get(day.pop(), None)
-
+        menu = week_days.get(day.pop(), None)
         if menu is None:
             return None, None, msg["sorry_no_menu"]
 
-        curr_day, curr_month = menu_for.split(".")
         return curr_day, curr_month, menu
 
     @classmethod
@@ -131,30 +81,41 @@ class Materik:
 
         price = "{0:.2f}".format(context.user_data["menu_price"])
 
-        buttons = [[InlineKeyboardButton(v, callback_data=k)] for k, v in options.items()]
+        buttons = [
+            [InlineKeyboardButton(v, callback_data=k)] for k, v in options.items()
+        ]
         reply_markup = InlineKeyboardMarkup(list(buttons))
 
-        query.edit_message_text(text=f"Цена обеда: {price}", reply_markup=reply_markup)
+        query.edit_message_text(
+            text=f"{msg['lunch_price']}: {price}", reply_markup=reply_markup
+        )
 
     @classmethod
-    def test_menu(cls, update: Update, context):
-        options = cls.parse_menu()
-        buttons = [[InlineKeyboardButton(v, callback_data=k)] for k, v in options.items()]
+    def get_menu(cls, update: Update, context):
+        menu_for, options = cls.parse_menu_items()
+        if not menu_for:
+            menu_for = msg["lunch_menu"]
+        buttons = [
+            [InlineKeyboardButton(v, callback_data=k)] for k, v in options.items()
+        ]
         reply_markup = InlineKeyboardMarkup(list(buttons))
 
         context.user_data["menu_options"] = options
         context.user_data["menu_options_selected"] = {}
         context.user_data["menu_price"] = 0
-        update.message.reply_text('Please choose:', reply_markup=reply_markup)
+        update.message.reply_text(menu_for, reply_markup=reply_markup)
 
     @classmethod
-    def parse_menu(cls) -> Dict[str, str]:
-        menu = cls.fetch_menu(day="today")
-        items_string = menu[2:]
-        items = re.split(r"\.\n", items_string[0])
+    def parse_menu_items(cls) -> Tuple[str, Dict[str, str]]:
+        menu_for = ""
         options = {}
+        day, month, menu = cls.fetch_menu()
+        if day is not None and month is not None:
+            today = f"{int(day)}е {ru_month[int(month)]}"
+            menu_for = f"{msg['menu_for']} {today}"
+
+        items = re.split(r"\.\n", menu)
         for idx, item in enumerate(items):
             options[str(idx)] = item.strip()
 
-        return options
-
+        return menu_for, options

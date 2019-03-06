@@ -1,5 +1,11 @@
-from .handler import restaurant, conv_handler, notification_conversation
+from .handler import notification_conversation, menu_materik, menu_vangog
 from .vangog import Vangog
 from .materik import Materik
 
-__all__ = ["restaurant", "Vangog", "Materik", "conv_handler", "notification_conversation"]
+__all__ = [
+    "Vangog",
+    "Materik",
+    "notification_conversation",
+    "menu_materik",
+    "menu_vangog",
+]

@@ -1,4 +1,11 @@
-STATE = {"RESTAURANT": 0, "MATERIK": 1, "VANGOG": 2, "NOTIFICATIONS": 3, "NOTIFY_MATERIK": 4, "NOTIFY_VANGOG": 5}
+STATE = {
+    "RESTAURANT": 0,
+    "MATERIK": 1,
+    "VANGOG": 2,
+    "NOTIFICATIONS": 3,
+    "NOTIFY_MATERIK": 4,
+    "NOTIFY_VANGOG": 5,
+}
 
 ru_month = {
     1: "января",
@@ -16,6 +23,9 @@ ru_month = {
 }
 
 msg = {
+    "lunch_menu": "Обеденное меню",
+    "lunch_price": "Цена обеда",
+    "menu_for": "меню ♨ на",
     "wait_a_moment": "Подождите несколько секунд, я схожу за меню..",
-    "sorry_no_menu": "Извините, к сожалению меню нет ¯\_(ツ)_/¯"
+    "sorry_no_menu": "Извините, к сожалению меню нет ¯\_(ツ)_/¯",
 }
