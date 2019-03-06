@@ -1,10 +1,10 @@
 import re
-from typing import Optional, List
+from typing import Optional, List, Dict
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
-from telegram import Update, ReplyKeyboardMarkup
+from telegram import Update, ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 
 from util import STATE, reply_keyboard_restaurants, ru_month, msg
@@ -110,3 +110,51 @@ class Materik:
 
         curr_day, curr_month = menu_for.split(".")
         return curr_day, curr_month, menu
+
+    @classmethod
+    def menu_handler(cls, update: Update, context: CallbackContext):
+        query = update.callback_query
+        options = context.user_data["menu_options"]
+        added_options = context.user_data["menu_options_selected"]
+
+        option_price = re.findall(r"(\d+)р\.(\d+)к", options[query.data]).pop()
+        item_price = int(option_price[0]) + float(option_price[1]) / 100
+
+        if query.data in added_options:
+            context.user_data["menu_price"] -= item_price
+            options[query.data] = added_options[query.data]
+            del added_options[query.data]
+        else:
+            added_options[query.data] = options[query.data]
+            options[query.data] = f"✅ {options[query.data]}"
+            context.user_data["menu_price"] += item_price
+
+        price = "{0:.2f}".format(context.user_data["menu_price"])
+
+        buttons = [[InlineKeyboardButton(v, callback_data=k)] for k, v in options.items()]
+        reply_markup = InlineKeyboardMarkup(list(buttons))
+
+        query.edit_message_text(text=f"Цена обеда: {price}", reply_markup=reply_markup)
+
+    @classmethod
+    def test_menu(cls, update: Update, context):
+        options = cls.parse_menu()
+        buttons = [[InlineKeyboardButton(v, callback_data=k)] for k, v in options.items()]
+        reply_markup = InlineKeyboardMarkup(list(buttons))
+
+        context.user_data["menu_options"] = options
+        context.user_data["menu_options_selected"] = {}
+        context.user_data["menu_price"] = 0
+        update.message.reply_text('Please choose:', reply_markup=reply_markup)
+
+    @classmethod
+    def parse_menu(cls) -> Dict[str, str]:
+        menu = cls.fetch_menu(day="today")
+        items_string = menu[2:]
+        items = re.split(r"\.\n", items_string[0])
+        options = {}
+        for idx, item in enumerate(items):
+            options[str(idx)] = item.strip()
+
+        return options
+
