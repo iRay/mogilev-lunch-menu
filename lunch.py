@@ -10,7 +10,13 @@ from telegram.ext import (
 
 from config import telegram_bot
 from util import error_callback, unknown, start
-from restaurants import notification_conversation, Materik, menu_materik, menu_vangog
+from restaurants import (
+    notification_conversation,
+    Materik,
+    menu_materik,
+    menu_vangog,
+    menu_pizzaroni,
+)
 
 
 def main():
@@ -24,8 +30,11 @@ def main():
 
     materik_handler = MessageHandler(Filters.regex("^(материк)$"), menu_materik)
     vangog_handler = MessageHandler(Filters.regex("^(вангог)$"), menu_vangog)
+    pizzaroni_handler = MessageHandler(Filters.regex("^(пиццарони)$"), menu_pizzaroni)
+
     dispatcher.add_handler(materik_handler)
     dispatcher.add_handler(vangog_handler)
+    dispatcher.add_handler(pizzaroni_handler)
     dispatcher.add_handler(
         CallbackQueryHandler(Materik.menu_handler, pass_user_data=True)
     )

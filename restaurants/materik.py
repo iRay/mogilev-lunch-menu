@@ -67,28 +67,30 @@ class Materik:
         options = context.user_data["menu_options"]
         added_options = context.user_data["menu_options_selected"]
 
-        option_price = re.findall(r"(\d+)р\.(\d+)к", options[query.data]).pop()
-        item_price = int(option_price[0]) + float(option_price[1]) / 100
+        re_option_price = re.findall(r"(\d+)р\.(\d+)к", options[query.data])
+        if re_option_price:
+            option_price = re_option_price.pop()
+            item_price = int(option_price[0]) + float(option_price[1]) / 100
 
-        if query.data in added_options:
-            context.user_data["menu_price"] -= item_price
-            options[query.data] = added_options[query.data]
-            del added_options[query.data]
-        else:
-            added_options[query.data] = options[query.data]
-            options[query.data] = f"✅ {options[query.data]}"
-            context.user_data["menu_price"] += item_price
+            if query.data in added_options:
+                context.user_data["menu_price"] -= item_price
+                options[query.data] = added_options[query.data]
+                del added_options[query.data]
+            else:
+                added_options[query.data] = options[query.data]
+                options[query.data] = f"✅ {options[query.data]}"
+                context.user_data["menu_price"] += item_price
 
-        price = "{0:.2f}".format(abs(context.user_data["menu_price"]))
+            price = "{0:.2f}".format(abs(context.user_data["menu_price"]))
 
-        buttons = [
-            [InlineKeyboardButton(v, callback_data=k)] for k, v in options.items()
-        ]
-        reply_markup = InlineKeyboardMarkup(list(buttons))
+            buttons = [
+                [InlineKeyboardButton(v, callback_data=k)] for k, v in options.items()
+            ]
+            reply_markup = InlineKeyboardMarkup(list(buttons))
 
-        query.edit_message_text(
-            text=f"{msg['lunch_price']}: {price}", reply_markup=reply_markup
-        )
+            query.edit_message_text(
+                text=f"{msg['lunch_price']}: {price}", reply_markup=reply_markup
+            )
 
     @classmethod
     def get_menu(cls, update: Update, context):

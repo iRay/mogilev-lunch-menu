@@ -2,9 +2,11 @@ STATE = {
     "RESTAURANT": 0,
     "MATERIK": 1,
     "VANGOG": 2,
-    "NOTIFICATIONS": 3,
-    "NOTIFY_MATERIK": 4,
-    "NOTIFY_VANGOG": 5,
+    "PIZZARONI": 3,
+    "NOTIFICATIONS": 4,
+    "NOTIFY_MATERIK": 5,
+    "NOTIFY_VANGOG": 6,
+    "NOTIFY_PIZZARONI": 7,
 }
 
 ru_month = {

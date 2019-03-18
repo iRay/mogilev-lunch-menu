@@ -9,6 +9,7 @@ from telegram.ext import (
 
 from .materik import Materik
 from .vangog import Vangog
+from .pizzaroni import Pizzaroni
 
 from util import (
     STATE,
@@ -33,7 +34,18 @@ def menu_vangog(update: Update, context: CallbackContext):
             reply_keyboard_restaurants, resize_keyboard=True
         ),
     )
-    Vangog.menu(update, context)
+    Vangog(update=update, context=context)
+
+
+@log_request
+def menu_pizzaroni(update: Update, context: CallbackContext):
+    update.message.reply_text(
+        msg["wait_a_moment"],
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard_restaurants, resize_keyboard=True
+        ),
+    )
+    Pizzaroni(update=update, context=context)
 
 
 @log_request
@@ -69,6 +81,13 @@ def notify_vangog(update: Update, context: CallbackContext):
 
 
 @log_request
+def notify_pizzaroni(update: Update, context: CallbackContext):
+    action = update.message.text.strip().lower()
+    handle_action(update=update, restaurant="pizzaroni", action=action)
+    return ConversationHandler.END
+
+
+@log_request
 def handle_action(update, restaurant, action):
     msg = ""
     if action.startswith("включить"):
@@ -98,7 +117,7 @@ notification_conversation = ConversationHandler(
     states={
         STATE["NOTIFICATIONS"]: [
             MessageHandler(
-                Filters.regex("^(материк|вангог)$"), restaurant_notifications
+                Filters.regex("^(материк|вангог|пиццарони)$"), restaurant_notifications
             )
         ],
         STATE["NOTIFY_MATERIK"]: [
@@ -106,6 +125,9 @@ notification_conversation = ConversationHandler(
         ],
         STATE["NOTIFY_VANGOG"]: [
             MessageHandler(Filters.regex("^(включить.*|отключить.*)$"), notify_vangog)
+        ],
+        STATE["NOTIFY_PIZZARONI"]: [
+            MessageHandler(Filters.regex("^(включить.*|отключить.*)$"), notify_pizzaroni)
         ],
     },
     fallbacks=[CommandHandler("cancel", cancel)],
