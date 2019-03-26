@@ -6,9 +6,11 @@ from telegram.ext import (
     Filters,
     CommandHandler,
     CallbackQueryHandler,
+    TypeHandler,
 )
 
 from config import telegram_bot
+from restaurants.models import UserNotification
 from util import error_callback, unknown, start
 from restaurants import (
     notification_conversation,
@@ -16,12 +18,18 @@ from restaurants import (
     menu_materik,
     menu_vangog,
     menu_pizzaroni,
+    ScheduleMenu,
 )
+from restaurants.handler import notify_user
 
 
 def main():
     updater = Updater(telegram_bot["token"], use_context=True)
     dispatcher = updater.dispatcher
+
+    ScheduleMenu(dispatcher)
+    notification_dispatch_handler = TypeHandler(UserNotification, notify_user, updater)
+    dispatcher.add_handler(notification_dispatch_handler)
 
     start_handler = CommandHandler("start", start)
     dispatcher.add_handler(start_handler)

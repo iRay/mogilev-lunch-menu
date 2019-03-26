@@ -21,6 +21,22 @@ from util import (
 )
 
 
+def notify_user(notify, updater):
+    """
+    Send notification to user
+    :param notify:
+    :param updater:
+    :return:
+    """
+    updater.bot.send_message(
+        notify.chat_id,
+        notify.msg,
+        reply_markup=ReplyKeyboardMarkup(
+            reply_keyboard_restaurants, resize_keyboard=True
+        ),
+    )
+
+
 @log_request
 def menu_materik(update: Update, context: CallbackContext):
     Materik.get_menu(update, context)
@@ -127,7 +143,9 @@ notification_conversation = ConversationHandler(
             MessageHandler(Filters.regex("^(включить.*|отключить.*)$"), notify_vangog)
         ],
         STATE["NOTIFY_PIZZARONI"]: [
-            MessageHandler(Filters.regex("^(включить.*|отключить.*)$"), notify_pizzaroni)
+            MessageHandler(
+                Filters.regex("^(включить.*|отключить.*)$"), notify_pizzaroni
+            )
         ],
     },
     fallbacks=[CommandHandler("cancel", cancel)],

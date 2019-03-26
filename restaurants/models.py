@@ -77,3 +77,9 @@ class InstagramMenu:
         finally:
             driver.quit()
             return img_url
+
+
+class UserNotification:
+    def __init__(self, chat_id, msg):
+        self.chat_id = chat_id
+        self.msg = msg
