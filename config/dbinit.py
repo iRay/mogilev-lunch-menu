@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
 create_notifications = """
 CREATE TABLE IF NOT EXISTS notifications (
  id INTEGER PRIMARY KEY,
- chat_id INTEGER NOT NULL UNIQUE,
+ chat_id INTEGER NOT NULL,
  restaurant_id INTEGER NOT NULL,
  status INTEGER DEFAULT 0,
  notify_at text DEFAULT '',

@@ -14,6 +14,10 @@ from config import restaurant
 class Materik:
     @classmethod
     def fetch_menu(cls):
+        """
+        Fetching Materik menu
+        :return:
+        """
         response_index = requests.get(restaurant["materik"]["site_url"])
         soup_index = BeautifulSoup(response_index.text, features="html.parser")
 
@@ -55,14 +59,21 @@ class Materik:
             f"0{curr_day}.{curr_month}",
             f"{curr_day}.0{curr_month}",
         }
-        menu = week_days.get(day.pop(), None)
-        if menu is None:
-            return None, None, msg["sorry_no_menu"]
+        if day:
+            menu = week_days.get(day.pop(), None)
+            if menu is None:
+                return None, None, msg["sorry_no_menu"]
 
         return curr_day, curr_month, menu
 
     @classmethod
     def menu_handler(cls, update: Update, context: CallbackContext):
+        """
+        Menu items selection handler
+        :param update:
+        :param context:
+        :return:
+        """
         query = update.callback_query
         options = context.user_data["menu_options"]
         added_options = context.user_data["menu_options_selected"]
@@ -94,6 +105,12 @@ class Materik:
 
     @classmethod
     def get_menu(cls, update: Update, context):
+        """
+        Get and prepare menu and appropriate inline keyboard
+        :param update:
+        :param context:
+        :return:
+        """
         menu_for, options = cls.parse_menu_items()
         if not menu_for:
             menu_for = msg["lunch_menu"]
@@ -109,6 +126,10 @@ class Materik:
 
     @classmethod
     def parse_menu_items(cls) -> Tuple[str, Dict[str, str]]:
+        """
+        Parse menu items
+        :return:
+        """
         menu_for = ""
         options = {}
         day, month, menu = cls.fetch_menu()

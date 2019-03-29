@@ -1,11 +1,10 @@
 from .decorators import log_request, send_typing_action, send_upload_photo_action
-from .keyboards import reply_keyboard_restaurants, kb_materik_menu_select, kb_notifications
-from .constants import STATE, ru_month, msg
+from .keyboards import kb_restaurants, kb_materik_menu_select, kb_notifications
+from .constants import restaurant_name, ru_month, msg, restaurants
 from .handlers import (
     unknown,
     error_callback,
     cancel,
-    start_conversation,
     start,
 )
 
@@ -14,14 +13,14 @@ __all__ = [
     "unknown",
     "error_callback",
     "cancel",
-    "start_conversation",
     "send_typing_action",
     "send_upload_photo_action",
-    "reply_keyboard_restaurants",
+    "kb_restaurants",
     "kb_notifications",
     "kb_materik_menu_select",
-    "STATE",
+    "restaurant_name",
     "ru_month",
     "msg",
     "start",
+    "restaurants",
 ]

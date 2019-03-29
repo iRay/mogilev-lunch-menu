@@ -1,24 +1,19 @@
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import (
-    CallbackContext,
-    Filters,
-    ConversationHandler,
-    CommandHandler,
-    MessageHandler,
+import re
+from telegram import (
+    Update,
+    ReplyKeyboardMarkup,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
 )
+from telegram.ext import CallbackContext
 
 from .materik import Materik
 from .vangog import Vangog
 from .pizzaroni import Pizzaroni
+from .db import set_user_notification
+from .models import RestaurantMenuImage
 
-from util import (
-    STATE,
-    cancel,
-    msg,
-    log_request,
-    reply_keyboard_restaurants,
-    kb_notifications,
-)
+from util import msg, kb_restaurants, restaurants
 
 
 def notify_user(notify, updater):
@@ -28,125 +23,147 @@ def notify_user(notify, updater):
     :param updater:
     :return:
     """
-    updater.bot.send_message(
-        notify.chat_id,
-        notify.msg,
-        reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard_restaurants, resize_keyboard=True
-        ),
-    )
+    if notify.restaurant in ["vangog", "pizzaroni"]:
+        restaurant_menu = RestaurantMenuImage(notify.restaurant).fetch_menu()
+        updater.bot.send_photo(
+            notify.chat_id,
+            photo=restaurant_menu,
+            caption=notify.msg,
+            reply_markup=ReplyKeyboardMarkup(kb_restaurants, resize_keyboard=True),
+        )
+    else:
+        updater.bot.send_message(
+            notify.chat_id,
+            notify.msg,
+            reply_markup=ReplyKeyboardMarkup(kb_restaurants, resize_keyboard=True),
+        )
 
 
-@log_request
 def menu_materik(update: Update, context: CallbackContext):
+    """
+    Get materik menu
+    :param update:
+    :param context:
+    :return:
+    """
     Materik.get_menu(update, context)
 
 
-@log_request
 def menu_vangog(update: Update, context: CallbackContext):
+    """
+    Get vangog menu
+    :param update:
+    :param context:
+    :return:
+    """
     update.message.reply_text(
         msg["wait_a_moment"],
-        reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard_restaurants, resize_keyboard=True
-        ),
+        reply_markup=ReplyKeyboardMarkup(kb_restaurants, resize_keyboard=True),
     )
     Vangog(update=update, context=context)
 
 
-@log_request
 def menu_pizzaroni(update: Update, context: CallbackContext):
+    """
+    Get pizzaroni menu
+    :param update:
+    :param context:
+    :return:
+    """
     update.message.reply_text(
         msg["wait_a_moment"],
-        reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard_restaurants, resize_keyboard=True
-        ),
+        reply_markup=ReplyKeyboardMarkup(kb_restaurants, resize_keyboard=True),
     )
     Pizzaroni(update=update, context=context)
 
 
-@log_request
 def restaurant_notifications(update: Update, context: CallbackContext):
-    selected_restaurant = update.message.text.strip().lower()
-    if selected_restaurant == "материк":
-        update.message.reply_text(
-            "materik notifications",
-            reply_markup=ReplyKeyboardMarkup(kb_notifications, resize_keyboard=True),
-        )
-        return STATE["NOTIFY_MATERIK"]
-
-    if selected_restaurant == "вангог":
-        update.message.reply_text(
-            "vangog notifications",
-            reply_markup=ReplyKeyboardMarkup(kb_notifications, resize_keyboard=True),
-        )
-        return STATE["NOTIFY_VANGOG"]
-
-
-@log_request
-def notify_materik(update: Update, context: CallbackContext):
-    action = update.message.text.strip().lower()
-    handle_action(update=update, restaurant="materik", action=action)
-    return ConversationHandler.END
-
-
-@log_request
-def notify_vangog(update: Update, context: CallbackContext):
-    action = update.message.text.strip().lower()
-    handle_action(update=update, restaurant="vangog", action=action)
-    return ConversationHandler.END
-
-
-@log_request
-def notify_pizzaroni(update: Update, context: CallbackContext):
-    action = update.message.text.strip().lower()
-    handle_action(update=update, restaurant="pizzaroni", action=action)
-    return ConversationHandler.END
+    """
+    Restaurants notifications menu
+    :param update:
+    :param context:
+    :return:
+    """
+    context.user_data["notify"] = {
+        "chat_id": update.message.chat_id,
+        "time": "",
+        "restaurant": "",
+        "status": "",
+    }
+    buttons = [
+        [
+            InlineKeyboardButton(
+                "материк", callback_data=f'restaurant_{restaurants["MATERIK"]}'
+            ),
+            InlineKeyboardButton(
+                "вангог", callback_data=f'restaurant_{restaurants["VANGOG"]}'
+            ),
+            InlineKeyboardButton(
+                "пиццарони", callback_data=f'restaurant_{restaurants["PIZZARONI"]}'
+            ),
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(buttons)
+    update.message.reply_text("Выберите заведение", reply_markup=reply_markup)
 
 
-@log_request
-def handle_action(update, restaurant, action):
-    msg = ""
-    if action.startswith("включить"):
-        msg = f"уведомления включены для {restaurant}"
-    if action.startswith("отключить"):
-        msg = f"уведомления отключены для {restaurant}"
-    update.message.reply_text(
-        msg,
-        reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard_restaurants, resize_keyboard=True
-        ),
-    )
+def notifications_handler(update: Update, context: CallbackContext):
+    """
+    User's notification handler
+    :param update:
+    :param context:
+    :return:
+    """
+    query = update.callback_query
+    if query.data.startswith("restaurant_"):
+        context.user_data["notify"]["restaurant"] = query.data
+        reply_text = "Выберите действие"
+        buttons = [
+            [
+                InlineKeyboardButton("включить 🔔", callback_data="notify_1"),
+                InlineKeyboardButton("отключить 🔕", callback_data="notify_0"),
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(buttons)
+        query.edit_message_text(text=reply_text, reply_markup=reply_markup)
 
-
-def notify_conversation(update: Update, context: CallbackContext):
-    update.message.reply_text(
-        "Для какого заведения включить уведомления?",
-        reply_markup=ReplyKeyboardMarkup(
-            reply_keyboard_restaurants, resize_keyboard=True
-        ),
-    )
-    return STATE["NOTIFICATIONS"]
-
-
-notification_conversation = ConversationHandler(
-    entry_points=[CommandHandler("notify", notify_conversation)],
-    states={
-        STATE["NOTIFICATIONS"]: [
-            MessageHandler(
-                Filters.regex("^(материк|вангог|пиццарони)$"), restaurant_notifications
+    if query.data.startswith("notify_"):
+        """ Check user's notification status selection """
+        status = int(query.data.split("_")[1])
+        context.user_data["notify"]["status"] = status
+        if not status:
+            notify_info = set_user_notification(context.user_data["notify"])
+            query.message.reply_text(
+                f'уведомления {notify_info["status"]} для заведения {notify_info["restaurant"]}',
+                reply_markup=ReplyKeyboardMarkup(kb_restaurants, resize_keyboard=True),
             )
-        ],
-        STATE["NOTIFY_MATERIK"]: [
-            MessageHandler(Filters.regex("^(включить.*|отключить.*)$"), notify_materik)
-        ],
-        STATE["NOTIFY_VANGOG"]: [
-            MessageHandler(Filters.regex("^(включить.*|отключить.*)$"), notify_vangog)
-        ],
-        STATE["NOTIFY_PIZZARONI"]: [
-            MessageHandler(
-                Filters.regex("^(включить.*|отключить.*)$"), notify_pizzaroni
+            del context.user_data["notify"]
+        else:
+            query.message.reply_text(
+                "введите время для уведомлений, например: 11:50",
+                reply_markup=ReplyKeyboardMarkup(kb_restaurants, resize_keyboard=True),
             )
-        ],
-    },
-    fallbacks=[CommandHandler("cancel", cancel)],
-)
+
+
+def notify_time(update: Update, context: CallbackContext):
+    """
+    Set user's notification time
+    :param update:
+    :param context:
+    :return:
+    """
+    time = re.compile(r"[\.:\s+,]").split(update.message.text.strip())
+    hours, minutes = list(filter(None, time))
+    if int(hours) > 24 or int(minutes) > 59:
+        update.message.reply_text(
+            "Вы, видимо, ошиблись при вводе времени. Начните заново.",
+            reply_markup=ReplyKeyboardMarkup(kb_restaurants, resize_keyboard=True),
+        )
+    if "notify" in context.user_data:
+        context.user_data["notify"]["time"] = f"{hours}:{minutes}"
+        notify_info = set_user_notification(context.user_data["notify"])
+        update.message.reply_text(
+            f'уведомления {notify_info["status"]} для заведения {notify_info["restaurant"]}',
+            reply_markup=ReplyKeyboardMarkup(kb_restaurants, resize_keyboard=True),
+        )
+        del context.user_data["notify"]
