@@ -40,9 +40,9 @@ def main():
     )
     dispatcher.add_handler(notify_command_handler)
 
-    dispatcher.add_handler(
-        CallbackQueryHandler(notifications_handler, pass_user_data=True)
-    )
+    # dispatcher.add_handler(
+    #     CallbackQueryHandler(notifications_handler, pass_user_data=True)
+    # )
     notify_time_handler = MessageHandler(
         Filters.regex(r"^\d{1,2}\s*[\.:\s+,]\s*\d{1,2}$"), notify_time
     )
