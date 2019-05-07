@@ -56,7 +56,7 @@ def main():
     dispatcher.add_handler(vangog_handler)
     dispatcher.add_handler(pizzaroni_handler)
     dispatcher.add_handler(
-        CallbackQueryHandler(Materik.menu_handler, pass_user_data=True)
+        CallbackQueryHandler(notifications_handler, pass_user_data=True)
     )
 
     dispatcher.add_error_handler(error_callback)
