@@ -7,10 +7,12 @@ from .handlers import (
     cancel,
     start,
 )
+from .common import init_driver
 
 __all__ = [
     "log_request",
     "unknown",
+    "init_driver",
     "error_callback",
     "cancel",
     "send_typing_action",

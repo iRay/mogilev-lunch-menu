@@ -1,5 +1,5 @@
-restaurants = {"MATERIK": 1, "VANGOG": 2, "PIZZARONI": 3}
-restaurant_name = {"1": "материк", "2": "вангог", "3": "пиццарони"}
+restaurants = {"MATERIK": 1, "VANGOG": 2, "PIZZARONI": 3, "KINZA": 4}
+restaurant_name = {"1": "материк", "2": "вангог", "3": "пиццарони", "4": "кинза"}
 
 ru_month = {
     1: "января",

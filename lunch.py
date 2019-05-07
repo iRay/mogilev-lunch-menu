@@ -10,17 +10,18 @@ from telegram.ext import (
 )
 
 from config import telegram_bot
+from restaurants.kinza import Kinza
 from restaurants.models import UserNotification
-from restaurants.handler import notifications_handler, notify_time
+from restaurants.handler import notifications_handler, notify_time, callback_context_handler
 from util import error_callback, unknown, start
 from restaurants import (
     restaurant_notifications,
-    Materik,
     menu_materik,
     menu_vangog,
     menu_pizzaroni,
+    menu_kinza,
     ScheduleMenu,
-)
+    Materik)
 from restaurants.handler import notify_user
 
 
@@ -40,9 +41,6 @@ def main():
     )
     dispatcher.add_handler(notify_command_handler)
 
-    # dispatcher.add_handler(
-    #     CallbackQueryHandler(notifications_handler, pass_user_data=True)
-    # )
     notify_time_handler = MessageHandler(
         Filters.regex(r"^\d{1,2}\s*[\.:\s+,]\s*\d{1,2}$"), notify_time
     )
@@ -51,12 +49,14 @@ def main():
     materik_handler = MessageHandler(Filters.regex("^(материк)$"), menu_materik)
     vangog_handler = MessageHandler(Filters.regex("^(вангог)$"), menu_vangog)
     pizzaroni_handler = MessageHandler(Filters.regex("^(пиццарони)$"), menu_pizzaroni)
+    kinza_handler = MessageHandler(Filters.regex("^(кинза)$"), menu_kinza)
 
     dispatcher.add_handler(materik_handler)
     dispatcher.add_handler(vangog_handler)
     dispatcher.add_handler(pizzaroni_handler)
+    dispatcher.add_handler(kinza_handler)
     dispatcher.add_handler(
-        CallbackQueryHandler(notifications_handler, pass_user_data=True)
+        CallbackQueryHandler(callback_context_handler, pass_user_data=True)
     )
 
     dispatcher.add_error_handler(error_callback)

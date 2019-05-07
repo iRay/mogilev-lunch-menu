@@ -14,5 +14,8 @@ restaurant:
       url: "https://www.instagram.com/cafe_pizzaroni/"
       posts_xpath: '//*[@id="react-root"]/section/main/div/div[3]/article/div/div/div/div/a'
       tags_regexp: 'property="instapp:hashtags"\s+content="(бизнесланч|обед|обеды)"\s*/?>'
+  kinza:
+    site_url: "http://kinzamogilev.by/menu-obed.htm"
+    menu_xpath: '//*[@id="main-content"]/div[1]/div'
 
 database: "./config/lunch.db"

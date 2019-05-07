@@ -10,10 +10,21 @@ from telegram.ext import CallbackContext
 from .materik import Materik
 from .vangog import Vangog
 from .pizzaroni import Pizzaroni
+from .kinza import Kinza
 from .db import set_user_notification
 from .models import RestaurantMenuImage
 
 from util import msg, kb_restaurants, restaurants
+
+
+def callback_context_handler(update: Update, context: CallbackContext):
+    user_context = context.user_data["context"]
+    if user_context == "kinza":
+        Kinza.menu_handler(update=update, context=context)
+    if user_context == "materik":
+        Materik.menu_handler(update=update, context=context)
+    if user_context == "notifications":
+        notifications_handler(update=update, context=context)
 
 
 def notify_user(notify, updater):
@@ -46,6 +57,7 @@ def menu_materik(update: Update, context: CallbackContext):
     :param context:
     :return:
     """
+    clean_current_context(update=update, context=context)
     Materik.get_menu(update, context)
 
 
@@ -77,6 +89,17 @@ def menu_pizzaroni(update: Update, context: CallbackContext):
     Pizzaroni(update=update, context=context)
 
 
+def menu_kinza(update: Update, context: CallbackContext):
+    """
+    Get kinza menu
+    :param update:
+    :param context:
+    :return:
+    """
+    clean_current_context(update=update, context=context)
+    Kinza.menu(update=update, context=context)
+
+
 def restaurant_notifications(update: Update, context: CallbackContext):
     """
     Restaurants notifications menu
@@ -84,6 +107,7 @@ def restaurant_notifications(update: Update, context: CallbackContext):
     :param context:
     :return:
     """
+    context.user_data["context"] = "notifications"
     context.user_data["notify"] = {
         "chat_id": update.message.chat_id,
         "time": "",
@@ -97,9 +121,13 @@ def restaurant_notifications(update: Update, context: CallbackContext):
             ),
             InlineKeyboardButton(
                 "вангог", callback_data=f'restaurant_{restaurants["VANGOG"]}'
-            ),
+            )
+        ], [
             InlineKeyboardButton(
                 "пиццарони", callback_data=f'restaurant_{restaurants["PIZZARONI"]}'
+            ),
+            InlineKeyboardButton(
+                "кинза", callback_data=f'restaurant_{restaurants["KINZA"]}'
             ),
         ]
     ]
@@ -167,3 +195,16 @@ def notify_time(update: Update, context: CallbackContext):
             reply_markup=ReplyKeyboardMarkup(kb_restaurants, resize_keyboard=True),
         )
         del context.user_data["notify"]
+
+
+def clean_current_context(update: Update, context: CallbackContext):
+    """
+    Clean current user context for handling callbacks
+    :param update:
+    :param context:
+    :return:
+    """
+    context.user_data["context"] = ""
+    context.user_data["menu_options"] = {}
+    context.user_data["menu_options_selected"] = {}
+    context.user_data["menu_price"] = 0

@@ -2,6 +2,7 @@ from .handler import (
     restaurant_notifications,
     menu_materik,
     menu_vangog,
+    menu_kinza,
     menu_pizzaroni,
 )
 from .db import get_users_to_notify, set_user_notification
@@ -17,6 +18,7 @@ __all__ = [
     "menu_materik",
     "menu_vangog",
     "menu_pizzaroni",
+    "menu_kinza",
     "ScheduleMenu",
     "set_user_notification",
     "restaurant_notifications",
