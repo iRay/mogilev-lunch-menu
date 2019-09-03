@@ -1,6 +1,6 @@
 from .decorators import log_request, send_typing_action, send_upload_photo_action
 from .keyboards import kb_restaurants, kb_materik_menu_select, kb_notifications
-from .constants import restaurant_name, ru_month, msg, restaurants
+from .constants import restaurant_name, ru_month, ru_weekday, msg, restaurants
 from .handlers import (
     unknown,
     error_callback,
@@ -22,6 +22,7 @@ __all__ = [
     "kb_materik_menu_select",
     "restaurant_name",
     "ru_month",
+    "ru_weekday",
     "msg",
     "start",
     "restaurants",

@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 
-from util import ru_month, msg
+from util import ru_month, ru_weekday, msg
 from config import restaurant
 
 
@@ -31,6 +31,8 @@ class Materik:
         response_menu_page = requests.get(new_menu_url[0])
 
         pattern = re.compile(r"(\d{1,2}\.\d{1,2})")
+        named_days = False
+        pattern_named = re.compile(r"([а-яА-Я]+\s+\d{1,2}\s+[а-яА-Я]+)")
 
         soup_menu_page = BeautifulSoup(response_menu_page.text, features="html.parser")
         content = soup_menu_page.find_all(
@@ -39,9 +41,14 @@ class Materik:
         menu = content[1].text
 
         elements = [el for el in re.split(pattern, menu) if el]
+        if len(elements) == 1:
+            named_days = True
+            elements = [el for el in re.split(pattern_named, menu) if el]
 
         def get_days(items) -> List:
             group = []
+            if named_days:
+                pattern = pattern_named
             for idx, el in enumerate(items):
                 if re.match(pattern, el):
                     group.extend([el, items[idx + 1]])
@@ -50,6 +57,11 @@ class Materik:
 
         week_days = dict(get_days(elements))
         menu_for = str(datetime.now().day) + "." + str(datetime.now().month)
+        if named_days:
+            curr_day = datetime.now().isoweekday()
+            for day in week_days.keys():
+                if ru_weekday[curr_day] in day:
+                    menu_for = day
 
         curr_day = datetime.now().day
         curr_month = datetime.now().month
