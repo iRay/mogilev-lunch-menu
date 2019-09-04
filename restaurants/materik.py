@@ -39,6 +39,7 @@ class Materik:
             "div", {"class": "apachkin-postcontent clearfix"}
         )
         menu = content[1].text
+        menu = re.sub(r"\(.+?\)", "", menu)
 
         elements = [el for el in re.split(pattern, menu) if el]
         if len(elements) == 1:
@@ -51,7 +52,7 @@ class Materik:
                 pattern = pattern_named
             for idx, el in enumerate(items):
                 if re.match(pattern, el):
-                    group.extend([el, items[idx + 1]])
+                    group.extend([el, items[idx + 1].strip()])
                     yield group
                     group = []
 
